@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <title>Learn Programming for Kids - App</title>
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#2b3a67" />
     <!-- Razorpay checkout script -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
@@ -28,7 +31,7 @@
         body {
             display: flex;
             flex-direction: column;
-            width:80%;
+            width: 80%;
             margin: 0 auto;
             box-shadow: 0 6px 18px rgba(0,0,0,0.25);
             border-radius: 20px;
@@ -92,12 +95,12 @@
             background: rgba(0,0,0,0.55);
             z-index: 9999;
             display: none;
-            align-items: flex-start; /* Align top */
+            align-items: flex-start;
             justify-content: flex-start;
         }
 
         #sideMenu {
-            position: relative; /* inside overlay */
+            position: relative;
             width: 220px;
             height: 100%;
             background: #3f51b5;
@@ -594,7 +597,7 @@
                 }
                 const options = {
                     key: razorpayKeyId,
-                    amount: 100,
+                    amount: 10000,
                     currency: "INR",
                     name: "Learn Programming For Kids",
                     description: `Full ${languages[lang].name} course purchase`,
@@ -624,6 +627,16 @@
             // Initialize UI
             renderCourse();
 
+            // Register service worker for PWA
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('sw.js').then((registration) => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    }).catch((err) => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+                });
+            }
         })();
     </script>
 </body>
