@@ -1,0 +1,632 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>Learn Programming for Kids - App</title>
+    <!-- Razorpay checkout script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        /* Reset and base */
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Poppins', 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #c3e5fc 0%, #667eea 100%);
+            color: #222;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+            max-width: 350px;
+            margin: 0 auto;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        /* App container */
+        #app {
+            position: relative;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        /* Top header with hamburger menu */
+        #header {
+            background: #2b3a67;
+            color: white;
+            font-size: 1.6em;
+            font-weight: 900;
+            letter-spacing: 1px;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+
+        #menuToggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8em;
+            cursor: pointer;
+            margin-right: 12px;
+            padding: 6px;
+            user-select: none;
+            transition: color 0.3s ease;
+        }
+
+            #menuToggle:hover,
+            #menuToggle:focus {
+                color: #bbdefb;
+                outline: none;
+            }
+
+        #headerText {
+            flex: 1;
+        }
+
+        /* Side menu (hidden by default) */
+        #sideMenuOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 9999;
+            display: none;
+            align-items: flex-start; /* Align top */
+            justify-content: flex-start;
+        }
+
+        #sideMenu {
+            position: relative; /* inside overlay */
+            width: 220px;
+            height: 100%;
+            background: #3f51b5;
+            box-shadow: 3px 0 12px rgba(0,0,0,0.3);
+            padding-top: 30px;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+        }
+
+            #sideMenu h2 {
+                color: white;
+                font-weight: 900;
+                text-align: center;
+                margin-bottom: 24px;
+                letter-spacing: 1.3px;
+                user-select: none;
+            }
+
+            #sideMenu button {
+                background: #7986cb;
+                border: none;
+                color: white;
+                cursor: pointer;
+                padding: 14px 20px;
+                font-size: 1.1em;
+                font-weight: 700;
+                font-family: 'Poppins', sans-serif;
+                margin: 8px 15px;
+                border-radius: 16px;
+                text-align: left;
+                transition: background-color 0.3s ease;
+            }
+
+                #sideMenu button:hover,
+                #sideMenu button:focus {
+                    background: #283593;
+                    outline: none;
+                }
+
+                #sideMenu button.active {
+                    background: #1a237e;
+                    box-shadow: 0 0 8px 2px #3949ab;
+                }
+
+        /* Main content area */
+        #mainContent {
+            flex: 1;
+            padding: 20px 20px 65px 20px;
+            overflow-y: auto;
+            color: #222;
+            user-select: text;
+        }
+
+            #mainContent h2 {
+                margin-top: 0;
+                color: #283593;
+                font-weight: 800;
+                text-shadow: 1px 1px 2px #aabcee;
+            }
+
+            #mainContent p {
+                margin-bottom: 14px;
+            }
+
+            #mainContent pre {
+                background: #eef1ff;
+                padding: 12px;
+                border-radius: 12px;
+                overflow-x: auto;
+                font-family: 'Consolas', monospace;
+                font-size: 0.95em;
+                box-shadow: inset 0 0 8px #aabbff88;
+            }
+
+            #mainContent::-webkit-scrollbar {
+                width: 7px;
+            }
+
+            #mainContent::-webkit-scrollbar-track {
+                background: #f0f4ff;
+            }
+
+            #mainContent::-webkit-scrollbar-thumb {
+                background: #5c6bc0;
+                border-radius: 4px;
+            }
+
+        /* Bottom nav with Prev/Next */
+        #bottomNav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 55px;
+            background: #f7f8fccc;
+            border-top: 3px solid #283593;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            box-shadow: inset 0 3px 6px #aabbffaa;
+            user-select: none;
+            z-index: 10;
+        }
+
+            #bottomNav button {
+                background: #5c6bc0;
+                border: none;
+                color: white;
+                cursor: pointer;
+                font-family: 'Poppins', sans-serif;
+                font-weight: 700;
+                font-size: 1.1em;
+                border-radius: 14px;
+                padding: 8px 25px;
+                box-shadow: 1px 3px 6px rgba(31,41,111,0.8);
+                transition: background-color 0.3s ease, transform 0.15s ease;
+                user-select: none;
+            }
+
+                #bottomNav button:disabled,
+                #bottomNav button[disabled] {
+                    background: #b0bec5;
+                    cursor: default;
+                    box-shadow: none;
+                    color: #37474f;
+                }
+
+                #bottomNav button:hover:not(:disabled),
+                #bottomNav button:focus:not(:disabled) {
+                    background: #283593;
+                    outline: none;
+                    transform: scale(1.05);
+                }
+
+                #bottomNav button:focus {
+                    outline: 3px solid #bbdefb;
+                }
+
+        /* Payment Modal Overlay */
+        #paymentModalOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            user-select: none;
+        }
+
+        #paymentModal {
+            background: white;
+            border-radius: 18px;
+            max-width: 320px;
+            width: 90%;
+            padding: 30px 25px;
+            box-shadow: 0 8px 20px rgba(40,40,40,0.3);
+            font-family: 'Poppins', sans-serif;
+            color: #222;
+            text-align: center;
+            position: relative;
+            user-select: text;
+        }
+
+            #paymentModal h3 {
+                margin-top: 0;
+                font-weight: 700;
+                color: #283593;
+                margin-bottom: 20px;
+                font-size: 1.6em;
+            }
+
+            #paymentModal p {
+                margin: 0 0 25px 0;
+                font-size: 1em;
+                color: #444;
+            }
+
+            #paymentModal button {
+                background: #283593;
+                color: white;
+                border: none;
+                border-radius: 14px;
+                padding: 12px 25px;
+                font-weight: 700;
+                font-size: 1em;
+                cursor: pointer;
+                margin: 0 10px;
+                box-shadow: 0 3px 12px #3949abcc;
+                width: 120px;
+                user-select: none;
+                transition: background-color 0.3s ease;
+            }
+
+                #paymentModal button:hover {
+                    background: #1a237e;
+                }
+
+                #paymentModal button#closeModalBtn {
+                    background: #b0bec5;
+                    color: #37474f;
+                    box-shadow: none;
+                }
+
+                    #paymentModal button#closeModalBtn:hover {
+                        background: #cfd8dc;
+                    }
+
+        /* Responsive adjustments */
+        @media (max-width: 350px) {
+            #header {
+                font-size: 1.5em;
+                padding: 10px 15px;
+            }
+
+            #mainContent {
+                padding: 18px 15px 65px 15px;
+                font-size: 0.95em;
+            }
+
+            #paymentModal {
+                padding: 25px 18px 20px 18px;
+                max-width: 280px;
+            }
+
+                #paymentModal button {
+                    width: 100px;
+                    padding: 10px 12px;
+                    margin: 0 8px;
+                    font-size: 0.95em;
+                }
+
+            #bottomNav button {
+                font-size: 1em;
+                padding: 8px 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app" role="application" aria-label="Programming Learning App">
+        <header id="header">
+            <button id="menuToggle" aria-label="Open menu" aria-haspopup="true" aria-controls="sideMenu" aria-expanded="false">
+                &#9776;
+            </button>
+            <div id="headerText">Learn Programming for Kids</div>
+        </header>
+
+        <nav id="sideMenuOverlay" tabindex="-1" aria-hidden="true">
+            <nav id="sideMenu" role="menu" aria-label="Programming Languages Menu" tabindex="0">
+                <h2>Courses</h2>
+                <button type="button" data-lang="python" role="menuitem" aria-current="page">Python</button>
+                <button type="button" data-lang="javascript" role="menuitem">JavaScript</button>
+                <button type="button" data-lang="java" role="menuitem">Java</button>
+                <button type="button" data-lang="htmlcss" role="menuitem">HTML &amp; CSS</button>
+            </nav>
+        </nav>
+
+        <main id="mainContent" tabindex="0" aria-live="polite" aria-label="Chapter content">
+            <h2>Welcome!</h2>
+            <p>Select a course from the menu and use the buttons below to navigate chapters.</p>
+        </main>
+
+        <nav id="bottomNav" role="navigation" aria-label="Chapter navigation">
+            <button id="prevChapterBtn" disabled aria-label="Previous Chapter">« Previous</button>
+            <button id="nextChapterBtn" disabled aria-label="Next Chapter">Next »</button>
+        </nav>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModalOverlay" role="dialog" aria-modal="true" aria-labelledby="paymentModalTitle" aria-describedby="paymentModalDesc">
+        <div id="paymentModal" tabindex="-1">
+            <h3 id="paymentModalTitle">Unlock Course</h3>
+            <p id="paymentModalDesc">This chapter is locked. To access all chapters, please purchase the full course.</p>
+            <button id="payNowBtn" aria-label="Pay for full course">Pay Now</button>
+            <button id="closeModalBtn" aria-label="Close payment modal">Close</button>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            // Course data
+            const languages = {
+                python: {
+                    name: "Python",
+                    chapters: [
+                        { title: "Chapter 1: Introduction", content: "<p>Welcome to Python programming! Python is a popular language used for beginners and professionals. Let’s start with how to write and run your first Python code.</p><pre><code>print('Hello, world!')</code></pre>" },
+                        { title: "Chapter 2: Variables and Data Types", content: "<p>Variables hold values that you can use later. Python supports data types like numbers, strings, and booleans.</p><pre><code>x = 5\ny = 'Hello'\nis_cool = True</code></pre>" },
+                        { title: "Chapter 3: Conditionals", content: "<p>Conditionals let your program make decisions.</p><pre><code>if x &gt; 3:\n    print('x is greater than 3')</code></pre>" },
+                        { title: "Chapter 4: Loops", content: "<p>Loops help you repeat actions multiple times.</p><pre><code>for i in range(5):\n    print(i)</code></pre>" },
+                        { title: "Chapter 5: Functions", content: "<p>Functions group code into reusable blocks.</p><pre><code>def greet(name):\n    print('Hello, ' + name)</code></pre>" },
+                        { title: "Chapter 6: Lists", content: "<p>Lists store multiple items in an ordered way.</p><pre><code>my_list = [1, 2, 3, 'four']\nprint(my_list[0])</code></pre>" },
+                        { title: "Chapter 7: Dictionaries", content: "<p>Dictionaries hold key-value pairs as mappings.</p><pre><code>person = {\"name\": \"Alice\", \"age\": 10}\nprint(person[\"name\"])</code></pre>" },
+                        { title: "Chapter 8: Classes and Objects", content: "<p>Classes let you create your own data types and objects.</p><pre><code>class Dog:\n    def __init__(self, name):\n        self.name = name\n    def bark(self):\n        print(\"Woof!\")\n\nmy_dog = Dog('Buddy')\nmy_dog.bark()</code></pre>" }
+                    ]
+                },
+                javascript: {
+                    name: "JavaScript",
+                    chapters: [
+                        { title: "Chapter 1: Introduction", content: "<p>JavaScript lets you add interactivity to websites. Let's start with writing your first JavaScript code.</p><pre><code>console.log('Hello, world!');</code></pre>" },
+                        { title: "Chapter 2: Variables and Data Types", content: "<p>Variables store information like numbers and text.</p><pre><code>let x = 5;\nlet y = 'Hello';\nlet isReady = true;</code></pre>" },
+                        { title: "Chapter 3: Conditionals", content: "<p>Use conditionals to make decisions.</p><pre><code>if (x &gt; 3) {\n  console.log('x is greater than 3');\n}</code></pre>" },
+                        { title: "Chapter 4: Loops", content: "<p>Loops repeat actions multiple times.</p><pre><code>for (let i = 0; i &lt; 5; i++) {\n  console.log(i);\n}</code></pre>" },
+                        { title: "Chapter 5: Functions", content: "<p>Functions are reusable blocks of code.</p><pre><code>function greet(name) {\n  console.log('Hello, ' + name);\n}</code></pre>" },
+                        { title: "Chapter 6: Arrays", content: "<p>Arrays hold multiple values.</p><pre><code>let myArray = [1, 2, 3, 'four'];\nconsole.log(myArray[0]);</code></pre>" },
+                        { title: "Chapter 7: Objects", content: "<p>Objects hold properties with key-value pairs.</p><pre><code>const person = {name: 'Bob', age: 12};\nconsole.log(person.name);</code></pre>" },
+                        { title: "Chapter 8: Events", content: "<p>Events let user interact with web pages.</p><pre><code>button.addEventListener('click', () => {\n  alert('Clicked!');\n});</code></pre>" }
+                    ]
+                },
+                java: {
+                    name: "Java",
+                    chapters: [
+                        { title: "Chapter 1: Introduction", content: "<p>Java is a widely-used programming language. Let’s learn how to write your first Java program.</p><pre><code>public class Main {\n  public static void main(String[] args) {\n    System.out.println(\"Hello, world!\");\n  }\n}</code></pre>" },
+                        { title: "Chapter 2: Variables and Data Types", content: "<p>Variables in Java store data of different types.</p><pre><code>int x = 10;\nString greeting = \"Hi\";\nboolean isTrue = false;</code></pre>" },
+                        { title: "Chapter 3: Conditionals", content: "<p>Conditionals let your program choose what to do.</p><pre><code>if (x &gt; 5) {\n  System.out.println(\"x is greater than 5\");\n}</code></pre>" },
+                        { title: "Chapter 4: Loops", content: "<p>Loops repeat actions multiple times.</p><pre><code>for (int i = 0; i &lt; 5; i++) {\n  System.out.println(i);\n}</code></pre>" },
+                        { title: "Chapter 5: Methods", content: "<p>Methods group code you can run many times.</p><pre><code>public static void greet(String name) {\n  System.out.println(\"Hello, \" + name);\n}</code></pre>" },
+                        { title: "Chapter 6: Arrays", content: "<p>Arrays hold lists of data.</p><pre><code>int[] numbers = {1, 2, 3};\nSystem.out.println(numbers[0]);</code></pre>" },
+                        { title: "Chapter 7: Inheritance", content: "<p>Inheritance lets classes reuse code from other classes.</p><pre><code>class Animal {\n  void sound() {System.out.println(\"Animal sound\");}\n}\nclass Dog extends Animal {\n  void sound() {System.out.println(\"Woof\");}\n}</code></pre>" },
+                        { title: "Chapter 8: Interfaces", content: "<p>Interfaces specify methods a class should implement.</p><pre><code>interface Animal {\n  void sound();\n}\nclass Cat implements Animal {\n  public void sound() {System.out.println(\"Meow\");}\n}</code></pre>" }
+                    ]
+                },
+                htmlcss: {
+                    name: "HTML & CSS",
+                    chapters: [
+                        { title: "Chapter 1: HTML Basics", content: "<p>HTML is the language for web pages. Let's write your first HTML page.</p><pre><code>&lt;!DOCTYPE html&gt;\n&lt;html&gt;\n  &lt;head&gt;&lt;title&gt;My First Page&lt;/title&gt;&lt;/head&gt;\n  &lt;body&gt;\n    &lt;h1&gt;Hello World&lt;/h1&gt;\n  &lt;/body&gt;\n&lt;/html&gt;</code></pre>" },
+                        { title: "Chapter 2: CSS Basics", content: "<p>CSS styles the look of your web pages.</p><pre><code>body {\n  background-color: lightblue;\n  font-family: Arial, sans-serif;\n}</code></pre>" },
+                        { title: "Chapter 3: HTML Elements", content: "<p>Learn important HTML tags like paragraphs, links, and images.</p><pre><code>&lt;p&gt;This is a paragraph.&lt;/p&gt;\n&lt;a href=\"https://example.com\"&gt;A link&lt;/a&gt;\n&lt;img src=\"image.jpg\" alt=\"My Image\"/&gt;</code></pre>" },
+                        { title: "Chapter 4: CSS Styling", content: "<p>Use CSS to change colors, borders, and spacing.</p><pre><code>h1 {\n  color: darkblue;\n  border-bottom: 2px solid black;\n  padding-bottom: 5px;\n}</code></pre>" },
+                        { title: "Chapter 5: Layouts", content: "<p>Learn how to create page layouts using flexbox and grid.</p><pre><code>.container {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}</code></pre>" },
+                        { title: "Chapter 6: Responsive Design", content: "<p>Make websites that look good on phones and tablets.</p><pre><code>@media (max-width: 600px) {\n  body {\n    background-color: lightgreen;\n  }\n}</code></pre>" },
+                        { title: "Chapter 7: CSS Animations", content: "<p>Create animations to make your site lively.</p><pre><code>@keyframes example {\n  from {background-color: red;}\n  to {background-color: yellow;}\n}\n.div {\n  animation-name: example;\n  animation-duration: 4s;\n}</code></pre>" },
+                        { title: "Chapter 8: Forms and Inputs", content: "<p>Learn to gather user input with forms.</p><pre><code>&lt;form&gt;\n  &lt;input type=\"text\" name=\"username\"/&gt;\n  &lt;input type=\"submit\" value=\"Send\"/&gt;\n&lt;/form&gt;</code></pre>" }
+                    ]
+                }
+            };
+
+            // Razorpay key - Replace with your Razorpay key id
+            const razorpayKeyId = "YOUR_RAZORPAY_KEY_ID";
+
+            // UI Elements
+            const app = document.getElementById('app');
+            const menuToggle = document.getElementById('menuToggle');
+            const sideMenuOverlay = document.getElementById('sideMenuOverlay');
+            const sideMenu = document.getElementById('sideMenu');
+            const sideMenuButtons = sideMenu.querySelectorAll('button[role="menuitem"]');
+            const mainContent = document.getElementById('mainContent');
+            const headerText = document.getElementById('headerText');
+            const prevChapterBtn = document.getElementById('prevChapterBtn');
+            const nextChapterBtn = document.getElementById('nextChapterBtn');
+            const paymentModalOverlay = document.getElementById('paymentModalOverlay');
+            const payNowBtn = document.getElementById('payNowBtn');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+
+            let currentLang = 'python';
+            let currentChapter = 0;
+            let courseUnlocked = {};
+
+            // Toggle menu open/close
+            function openMenu() {
+                sideMenuOverlay.style.display = 'flex';
+                sideMenuOverlay.setAttribute('aria-hidden', 'false');
+                menuToggle.setAttribute('aria-expanded', 'true');
+                sideMenu.focus();
+            }
+            function closeMenu() {
+                sideMenuOverlay.style.display = 'none';
+                sideMenuOverlay.setAttribute('aria-hidden', 'true');
+                menuToggle.setAttribute('aria-expanded', 'false');
+                menuToggle.focus();
+            }
+            function toggleMenu() {
+                if (sideMenuOverlay.style.display === 'flex') {
+                    closeMenu();
+                } else {
+                    openMenu();
+                }
+            }
+
+            menuToggle.addEventListener('click', toggleMenu);
+
+            // Clicking outside sideMenu closes menu
+            sideMenuOverlay.addEventListener('click', (e) => {
+                if (e.target === sideMenuOverlay) closeMenu();
+            });
+
+            // Keyboard navigation for menu: ESC closes menu
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && sideMenuOverlay.style.display === 'flex') {
+                    closeMenu();
+                }
+                if (e.key === 'Escape' && paymentModalOverlay.style.display === 'flex') {
+                    closePaymentModal();
+                }
+            });
+
+            // Select course from menu
+            sideMenuButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const lang = btn.dataset.lang;
+                    if (lang !== currentLang) {
+                        currentLang = lang;
+                        currentChapter = 0;
+                        renderCourse();
+                    }
+                    closeMenu();
+                });
+            });
+
+            // Render the current course content and update UI
+            function renderCourse() {
+                // Update menu active states
+                sideMenuButtons.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.lang === currentLang);
+                    btn.setAttribute('aria-current', btn.dataset.lang === currentLang ? 'page' : 'false');
+                });
+
+                headerText.textContent = `${languages[currentLang].name} - ${languages[currentLang].chapters[currentChapter].title}`;
+
+                renderChapterContent();
+
+                updateBtnStates();
+            }
+
+            // Show chapter content
+            function renderChapterContent() {
+                const chapter = languages[currentLang].chapters[currentChapter];
+                mainContent.innerHTML = `<h2>${chapter.title}</h2>${chapter.content}`;
+                mainContent.focus();
+            }
+
+            // Update the Prev/Next button enable/disable state
+            function updateBtnStates() {
+                prevChapterBtn.disabled = currentChapter === 0;
+
+                if (currentChapter + 1 >= languages[currentLang].chapters.length) {
+                    nextChapterBtn.disabled = true;
+                    nextChapterBtn.title = "This is the last chapter";
+                } else if (!courseUnlocked[currentLang] && (currentChapter + 1) >= 4) {
+                    nextChapterBtn.disabled = false; // Enabled but will open payment modal on click
+                    nextChapterBtn.title = "Next chapter is locked. Purchase full course to unlock.";
+                } else {
+                    nextChapterBtn.disabled = false;
+                    nextChapterBtn.title = "Next chapter";
+                }
+            }
+
+            // Event handlers for Prev and Next buttons
+            prevChapterBtn.addEventListener('click', () => {
+                if (currentChapter > 0) {
+                    currentChapter--;
+                    renderCourse();
+                }
+            });
+
+            nextChapterBtn.addEventListener('click', () => {
+                const nextChapterIndex = currentChapter + 1;
+                if (nextChapterIndex >= languages[currentLang].chapters.length) {
+                    return; // No next chapter
+                }
+                if (!courseUnlocked[currentLang] && nextChapterIndex >= 4) {
+                    // Locked - open payment modal
+                    openPaymentModal(currentLang, nextChapterIndex);
+                } else {
+                    currentChapter = nextChapterIndex;
+                    renderCourse();
+                }
+            });
+
+            // Payment modal handlers
+            function openPaymentModal(lang, chapterIndex) {
+                paymentModalOverlay.style.display = 'flex';
+                paymentModalOverlay.dataset.lang = lang;
+                paymentModalOverlay.dataset.chapterIndex = chapterIndex;
+                document.getElementById('paymentModal').focus();
+            }
+            function closePaymentModal() {
+                paymentModalOverlay.style.display = 'none';
+                // Return focus to next button
+                nextChapterBtn.focus();
+            }
+
+            // Razorpay payment integration
+            function payForCourse() {
+                const lang = paymentModalOverlay.dataset.lang;
+                if (razorpayKeyId === "YOUR_RAZORPAY_KEY_ID") {
+                    alert("Please replace YOUR_RAZORPAY_KEY_ID with your actual Razorpay key.");
+                    return;
+                }
+                const options = {
+                    key: razorpayKeyId,
+                    amount: 100,
+                    currency: "INR",
+                    name: "Learn Programming For Kids",
+                    description: `Full ${languages[lang].name} course purchase`,
+                    handler: function (response) {
+                        courseUnlocked[lang] = true;
+                        alert("Payment successful! Thank you for purchasing the full " + languages[lang].name + " course.");
+                        currentChapter = +paymentModalOverlay.dataset.chapterIndex;
+                        renderCourse();
+                        closePaymentModal();
+                    },
+                    modal: {
+                        ondismiss: function () {
+                            closePaymentModal();
+                        }
+                    },
+                    theme: {
+                        color: "#3f51b5"
+                    }
+                };
+                const rzp = new Razorpay(options);
+                rzp.open();
+            }
+
+            payNowBtn.addEventListener('click', payForCourse);
+            closeModalBtn.addEventListener('click', closePaymentModal);
+
+            // Initialize UI
+            renderCourse();
+
+        })();
+    </script>
+</body>
+</html>
+
